@@ -8,42 +8,65 @@ use crate::lyrics::prompt::PromptTemplate;
 /**
  * 入参
 {
-    "model": "qwen-plus",
-    "messages": [
-        {
-            "role": "system",
-            "content": "You are a helpful assistant."
-        },
-        {
-            "role": "user",
-            "content": "你是谁？"
-        }
-    ]
+  "messages": [
+    {
+      "content": "You are a helpful assistant",
+      "role": "system"
+    },
+    {
+      "content": "Hi",
+      "role": "user"
+    }
+  ],
+  "model": "deepseek-chat",
+  "frequency_penalty": 0,
+  "max_tokens": 2048,
+  "presence_penalty": 0,
+  "response_format": {
+    "type": "text"
+  },
+  "stop": null,
+  "stream": false,
+  "stream_options": null,
+  "temperature": 1,
+  "top_p": 1,
+  "tools": null,
+  "tool_choice": "none",
+  "logprobs": false,
+  "top_logprobs": null
 }
  */
 
 /**
  * 返回
 {
-    "choices": [
-        {
-            "message": {
-                "role": "assistant",
-                "content": "我是阿里云开发的一款超大规模语言模型，我叫通义千问。"
-            },
-            "finish_reason": "stop",
-            "index": 0,
-            "logprobs": null
-        }
-    ]
+  "id": "930c60df-bf64-41c9-a88e-3ec75f81e00e",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Hello! How can I help you today?",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1705651092,
+  "model": "deepseek-chat",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 10,
+    "prompt_tokens": 16,
+    "total_tokens": 26
+  }
 }
  */
 
 const BASE_URL: &str =
-    "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+    "https://api.deepseek.com/chat/completions";
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ChatQwen {
+pub struct ChatDs {
     pub model: String,
     pub messages: Vec<Message>,
 }
@@ -73,8 +96,8 @@ struct Choice {
     pub finish_reason: String,
 }
 
-impl ChatQwen {
-    // 调用阿里云通用千问接口翻译文本
+impl ChatDs {
+    // 调用deepseek接口翻译文本
     pub async fn exec_translate(text: &str, openai_key: &str) -> Result<String> {
         let context = text;
         let promptTemp = PromptTemplate { context: &context };
@@ -92,8 +115,8 @@ impl ChatQwen {
         });
 
 
-        let chat_qwen = ChatQwen {
-            model: "qwen-plus".to_string(),
+        let chat_ds = ChatDs {
+            model: "deepseek-chat".to_string(),
             messages: messages,
         };
         // println!("chat_qwen={:?}", chat_qwen);
@@ -106,7 +129,7 @@ impl ChatQwen {
 
         let resp = request
             .header("Authorization", "Bearer ".to_string() + openai_key)
-            .json(&json!(chat_qwen))
+            .json(&json!(chat_ds))
             .send()
             .await?;
 
@@ -127,8 +150,8 @@ mod tests {
     #[test]
     async fn test_exec_chat() {
         let text = "The picture does not fit";
-        let openai_key = "sk-510ed600fa2342ffbb88d53931bb70b0";
-        let resp = ChatQwen::exec_translate(&text, &openai_key)
+        let openai_key = "sk-da4796912b01421d9be824b50473ab98";
+        let resp = ChatDs::exec_translate(&text, &openai_key)
             .await
             .unwrap();
         println!("resp={:?}", resp);

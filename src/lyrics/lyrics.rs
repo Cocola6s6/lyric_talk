@@ -8,24 +8,24 @@ pub struct Lyrics {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ResponseData {
+struct ResponseData {
     pub hits: Vec<Hit>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Hit {
+struct Hit {
     pub result: ResultData,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct ResultData {
+struct ResultData {
     pub title: String,
     pub primary_artist: Artist,
     pub url: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Artist {
+struct Artist {
     pub name: String,
 }
 
